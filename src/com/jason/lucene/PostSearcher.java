@@ -253,7 +253,7 @@ public class PostSearcher {
 	
 	public static void main(String[] args) {
 		PostSearcher sr = new PostSearcher();
-		String searchStr = "sdfsdf";
+		String searchStr = "序";
 //		List<PostVO> l = sr.search(searchStr, 1,10,new PaodingAnalyzer());
 		String res = sr.searchPost(searchStr,1,10);
 		System.out.println("res:"+res);
