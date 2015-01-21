@@ -6,6 +6,16 @@ public class Constant {
     
     //最多搜索10页
     public static final int SEARCH_PAGES = 10;
+
+    public static final int LISTEN_PORT = 5050;
+
+    //通信用，有参数
+    public static final int SEARCHNC = 0x1;
+    public static final int ADDONE = 0x2;
+
+    //通信用，无参数
+    public static final int REIDX = 0x11;
+
 //    public static final String STOP_WORKTRAIN_NUM = "1";
 //    public static final String STOP_WORK_TERMINAL_NUM = "2";
 //    public static final String DEVICE_STATE_NUM = "3";
