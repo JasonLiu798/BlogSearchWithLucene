@@ -1,24 +1,39 @@
 package com.jason.server;
 
+
+
 import com.jason.lucene.GenerateIndex;
 import com.jason.lucene.PostSearcher;
 import com.jason.util.Constant;
+import com.jason.util.DBUtil;
 import com.jason.vo.SocketResult;
+
 import net.sf.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.log4j.Logger;
+
+
 /**
  * Created by liujianlong on 15/1/21.
  */
-public class ProcessThread  extends Thread {
+public class SearchThread  extends Thread {
+	private static Logger logger = Logger.getLogger(SearchThread.class);
+	private DataSource basicDataSource;
+	
     Socket clientRequest;
     //用户连接的通信套接字
     BufferedReader input; //输入流
     PrintWriter output; //输出流
 
-    public ProcessThread(Socket s) {
+    public SearchThread(Socket s) {
+    	this.basicDataSource = DBUtil.getDataSource();
+    	
         this.clientRequest = s;
         System.out.println(s.getInetAddress().toString() +":" +s.getPort()+"connected.");
         InputStreamReader reader;
@@ -31,14 +46,16 @@ public class ProcessThread  extends Thread {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-//        output.println("Welcome to the server!");
     }
-
+    
     /**
      * thread run
      */
     public void run() {
         String str = null;
+        
+        System.out.println("Thread "+Thread.currentThread().getName() + " Started.");
+        
         boolean done = false;
         while (!done) {
             try {
@@ -78,7 +95,7 @@ public class ProcessThread  extends Thread {
                             case Constant.ADDONE://ADDONE#id
                                 String id_str = funcParam;
                                 int pid = Integer.parseInt(id_str);
-                                GenerateIndex gi = new GenerateIndex();
+                                GenerateIndex gi = new GenerateIndex(this.basicDataSource);
                                 boolean addidx_res = gi.addIndex(Constant.IDX_DIR,pid);
                                 if(addidx_res){
                                     data = "success";
@@ -103,7 +120,7 @@ public class ProcessThread  extends Thread {
                     int funcNameCode = Integer.parseInt(funcName);
                     switch(funcNameCode){
                         case Constant.REIDX:// REIDX#0
-                            GenerateIndex gi = new GenerateIndex();
+                            GenerateIndex gi = new GenerateIndex(this.basicDataSource);
                             boolean reidx_res = gi.GenerateAllIndex(Constant.IDX_DIR);
                             if(reidx_res){
                                 data = "success";
@@ -133,8 +150,10 @@ public class ProcessThread  extends Thread {
             input.close();
             output.close();
             clientRequest.close(); //关闭套接字
+            System.out.println("Thread "+Thread.currentThread().getName() + " End.");
         }catch(IOException e){
             System.out.println(e.getMessage());
         }
+        
     }
 }

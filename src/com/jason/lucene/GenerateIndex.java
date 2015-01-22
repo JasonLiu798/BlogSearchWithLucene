@@ -23,6 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.sql.DataSource;
+
 import net.paoding.analysis.analyzer.PaodingAnalyzer;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -58,9 +60,12 @@ public class GenerateIndex {
     private static final String regEx_space = "\t|\r|\n";//回车，换行符，转为单个空格
     private static final String regEx_multispace = "\\s+\\s+";//多个空格，转为单个
 //    private BasicDataSource basicDataSource;
+    private DataSource basicDataSource;
     
     //索引目录
-    
+    public GenerateIndex(DataSource ds){
+    	this.basicDataSource = ds;
+    }
     
 	public String removeHtmlTag(String htmlStr){
 		if(htmlStr ==null ){
@@ -100,7 +105,7 @@ public class GenerateIndex {
 		Connection conn =null;
 		PreparedStatement st = null;
 		try {
-			conn = DBUtil.getConnection();
+			conn = this.basicDataSource.getConnection();
 			String sql = "select ID,post_title,post_content from posts";
 //			PreparedStatement prest = conn.prepareStatement(sql);
 //			prest.setInt(1, id);
@@ -141,7 +146,7 @@ public class GenerateIndex {
 		Connection conn = null;
 		PostVO res = null;
 		try {
-			conn = DBUtil.getConnection();
+			conn = this.basicDataSource.getConnection();
 			String sql = "select ID,post_title,post_content from posts where ID=? limit 1";
 			PreparedStatement prest = conn.prepareStatement(sql);
 			prest.setInt(1, id);
@@ -164,9 +169,6 @@ public class GenerateIndex {
                 }
             }
         }
-//		if(res!=null && res.length()>0){
-//			res = this.removeHtmlTag(res);
-//		}
 		return res;
 	}
 	
@@ -291,7 +293,7 @@ public class GenerateIndex {
 	 */
 	public static void main(String[] args) {
 		
-		GenerateIndex gi = new GenerateIndex();
+		GenerateIndex gi = new GenerateIndex( DBUtil.getDataSource());
 		gi.GenerateAllIndex(Constant.IDX_DIR);
 		
 		

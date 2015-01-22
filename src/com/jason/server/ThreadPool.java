@@ -7,7 +7,7 @@ import java.util.LinkedList;
  * Created by liujianlong on 15/1/21.
  */
 public class ThreadPool {
-    static final long IDLE_TIMEOUT = 60000L;
+    static final long IDLE_TIMEOUT = 60000L;//超时
 
     private String name;
     private int minsize;
@@ -36,15 +36,15 @@ public class ThreadPool {
             throw new NullPointerException();
         }
 
-// get a worker from free list...
+        // get a worker from free list...
         if (!pool.isEmpty()) {
             worker = (Worker) pool.removeFirst();
         } else {
-// ...no free worker available, create new one...
+        	// no free worker available, create new one...
             worker = new Worker(name + "-" + ++nextWorkerId);
             worker.start();
         }
-// ...and wake up worker to service incoming runner
+        // and wake up worker to service incoming runner
         worker.wakeup(runner);
     }
 
@@ -73,8 +73,9 @@ public class ThreadPool {
         return true; // die
     }
 
+    
     /**
-     * class Worker
+     * class Worker 
      */
     class Worker extends Thread {
         Runnable runner = null;

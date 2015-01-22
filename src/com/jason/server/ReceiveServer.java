@@ -1,29 +1,37 @@
 package com.jason.server;
 
-/**
- * Created by liujianlong on 15/1/21.
- */
-
 import com.jason.util.Constant;
 
 import java.net.ServerSocket;
-
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.net.*;
 
+/**
+ * class receive server
+ * 
+ * @author Jason Liu
+ *
+ */
 public class ReceiveServer {
-
-
+//	private 
+//    private 
+    private static final int POOLSIZE = 100;
+    ExecutorService pool;
     //receiveServer的构造器
     public ReceiveServer() {
-
+    	this.pool = Executors.newCachedThreadPool();//(POOLSIZE);
     }
-
+    
+    
+    
     public void startServer(){
-        ServerSocket rServer;//ServerSocket的实例
-        Socket request; //用户请求的套接字
-        Thread receiveThread;
+    	Thread receiveThread;
+    	ServerSocket rServer;//ServerSocket的实例
+    	Socket request; //用户请求的套接字
+    	
         try {
             rServer = new ServerSocket( Constant.LISTEN_PORT );
             if(rServer!=null){
@@ -31,14 +39,17 @@ public class ReceiveServer {
 
                 while (true) { //等待用户请求
                     request = rServer.accept();//接收客户机连接请求
-                    receiveThread = new ProcessThread(request);//生成serverThread的实例
-                    receiveThread.start();//启动serverThread线程
+                    receiveThread = new SearchThread(request);//生成serverThread的实例
+                    this.pool.execute(receiveThread);
+//                    receiveThread.start();//启动serverThread线程
                 }
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
+    
+    
 
     public static void main(String args[]) {
         ReceiveServer rs = new ReceiveServer();
